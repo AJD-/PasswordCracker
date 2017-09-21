@@ -111,7 +111,7 @@ def commonPW():
                 for hash in hashList:
                     if(encoded.strip() == hash.strip()):
                         print(encoded+":"+password)
-                        out.write(encoded + ":" + password)
+                        out.write(encoded + ":" + password+"\n")
     out.close()
 
 def twoWords():
@@ -131,7 +131,7 @@ def twoWords():
             for hash in hashes:
                 if(hash.strip() == encoded.strip()):
                     print(encoded+":"+password)
-                    out.write(encoded+":"+password)
+                    out.write(encoded+":"+password+"\n")
     out.close()
 
 
@@ -143,6 +143,7 @@ def dict():
         hashList = []
         for h in hashes:
             hashList.append(h)
+        hashes.close()
         wordArray = []
         for word in wordList:
             wordArray.append(word.strip())
@@ -151,11 +152,11 @@ def dict():
         index = 0
         for password in wordArray:
             index += 1
-            encoded = hashlib.sha256("".join(password).strip().encode()).hexdigest()
-            for hash in hashes:
+            encoded = hashlib.sha256(password.strip().encode()).hexdigest()
+            for hash in hashList:
                 if(hash.strip() == encoded.strip()):
                     print(encoded+":"+password)
-                    out.write(encoded+":"+password)
+                    out.write(encoded+":"+password+"\n")
             if(index % 5000 == 0):
                 print(str(index) + " words completed")
     out.close()
