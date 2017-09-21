@@ -5,7 +5,7 @@ import itertools
 def main():
     cont = True
     while cont == True:
-        choice = input("What type of attack?\n1. Dictionary\n2. Random String Brute Force (up to 6char)\n3. Word w/trail\n4. Common Passwords\n5. Quit\n>")
+        choice = input("What type of attack?\n1. Dictionaryw/random caps\n2. Random String Brute Force (up to 6char)\n3. Word w/trail\n4. Common Passwords\n5. Dictionary Attack\n6. Quit\n>")
         if choice == '1':
             randCapWord()
         if choice == '2':
@@ -15,17 +15,20 @@ def main():
         if choice == '4':
             commonPW()
         if choice == '5':
+            dict()
+        if choice == '6':
             cont = False
 
 def randCapWord():
     print("Dictionary Attack - Random caps")
+    amtDone = 0
     hashes = open("hashes.txt", "r")
     out = open("cracked.txt", "a")
     # Build array of hashes to check against
     hashList = []
     for h in hashes:
         hashList.append(h)
-    with open("english_words.txt", "r") as pwlist:
+    with open("english_lc.txt", "r") as pwlist:
         for password in pwlist:
             combList = map("".join, itertools.product(*((char.upper(), char.lower()) for char in password)))
             for word in combList:
@@ -34,6 +37,9 @@ def randCapWord():
                     if(encoded.strip() == hash.strip()):
                         print(encoded+":"+password)
                         out.write(encoded + ":" + password)
+                amtDone += 1
+                if(amtDone % 1000 == 0):
+                    print(amtDone + " words checked")
     out.close()
 
 
@@ -74,15 +80,20 @@ def trail():
     hashList = []
     for h in hashes:
         hashList.append(h)
-    with open("english_words.txt", "r") as pwlist:
-        for password in pwlist:
-            trailList = itertools.combinations_with_replacement(list(chr(ascii) for ascii in itertools.chain(l1,l2,l3)), 4)
-            for trail in trailList:
-                encoded = hashlib.sha256((password.strip() + "".join(trail).strip()).encode()).hexdigest()
-                for hash in hashList:
-                    if(encoded.strip() == hash.strip()):
-                        print(encoded+":"+password)
-                        out.write(encoded + ":" + password)
+    pwlist = open("english_lc.txt", "r")
+    wordArray = []
+    for word in wordList:
+        wordArray.append(word.strip())
+        wordArray.append(word.title().strip())
+    pwlist.close()
+    for password in wordList:
+        trailList = itertools.combinations_with_replacement(list(chr(ascii) for ascii in itertools.chain(l1,l2,l3)), 4)
+        for trail in trailList:
+            encoded = hashlib.sha256((password.strip() + "".join(trail).strip()).encode()).hexdigest()
+            for hash in hashList:
+                if(encoded.strip() == hash.strip()):
+                    print(encoded+":"+password)
+                    out.write(encoded + ":" + password)
     out.close()
 
 
@@ -123,6 +134,31 @@ def twoWords():
                     out.write(encoded+":"+password)
     out.close()
 
+
+def dict():
+    print("Standard dictionary attack - only checks title case/lowercase")
+    with open("cracked.txt","a") as out:
+        wordList = open("english_lc.txt", "r")
+        hashes = open("hashes.txt", "r")
+        hashList = []
+        for h in hashes:
+            hashList.append(h)
+        wordArray = []
+        for word in wordList:
+            wordArray.append(word.strip())
+            wordArray.append(word.title().strip())
+        wordList.close()
+        index = 0
+        for password in wordArray:
+            index += 1
+            encoded = hashlib.sha256("".join(password).strip().encode()).hexdigest()
+            for hash in hashes:
+                if(hash.strip() == encoded.strip()):
+                    print(encoded+":"+password)
+                    out.write(encoded+":"+password)
+            if(index % 5000 == 0):
+                print(str(index) + " words completed")
+    out.close()
 
 def all():
     commonPW()
