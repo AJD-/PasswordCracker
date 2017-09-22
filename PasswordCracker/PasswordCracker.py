@@ -21,15 +21,17 @@ def main():
 
 def randCapWord():
     print("Dictionary Attack - Random caps")
-    amtDone = 0
     hashes = open("hashes.txt", "r")
     out = open("cracked.txt", "a")
     # Build array of hashes to check against
     hashList = []
     for h in hashes:
         hashList.append(h)
+    hashes.close()
     with open("english_lc.txt", "r") as pwlist:
+        index = 0
         for password in pwlist:
+            # Get every combination of upper and lowercase letters in each word
             combList = map("".join, itertools.product(*((char.upper(), char.lower()) for char in password)))
             for word in combList:
                 encoded = hashlib.sha256(word.strip().encode()).hexdigest()
@@ -37,9 +39,9 @@ def randCapWord():
                     if(encoded.strip() == hash.strip()):
                         print(encoded+":"+password)
                         out.write(encoded + ":" + password)
-                amtDone += 1
-                if(amtDone % 1000 == 0):
-                    print(amtDone + " words checked")
+                index += 1
+                if(index % 5000 == 0):
+                    print(str(index) + " words checked")
     out.close()
 
 
@@ -71,7 +73,7 @@ def strBF():
 def trail():
     print("Dict with trail")
     hashes = open("hashes.txt", "r")
-    out = open("cracked.txt", "a")
+    out = open("cracked-trail.txt", "a")
     # Ranges for Non-alpha ascii codes
     l1 = range(33,64)
     l2 = range(91,96)
@@ -82,11 +84,13 @@ def trail():
         hashList.append(h)
     pwlist = open("english_lc.txt", "r")
     wordArray = []
-    for word in wordList:
+    for word in pwlist:
         wordArray.append(word.strip())
         wordArray.append(word.title().strip())
     pwlist.close()
-    for password in wordList:
+    index = 0
+    for password in wordArray:
+        index += 1
         trailList = itertools.combinations_with_replacement(list(chr(ascii) for ascii in itertools.chain(l1,l2,l3)), 4)
         for trail in trailList:
             encoded = hashlib.sha256((password.strip() + "".join(trail).strip()).encode()).hexdigest()
@@ -94,6 +98,8 @@ def trail():
                 if(encoded.strip() == hash.strip()):
                     print(encoded+":"+password)
                     out.write(encoded + ":" + password)
+            if(index % 5000 == 0):
+                print(str(index) + " words completed")
     out.close()
 
 
