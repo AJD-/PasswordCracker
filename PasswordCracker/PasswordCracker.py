@@ -5,8 +5,8 @@ import threading
 #hashlib.sha256(line.strip().encode()).hexdigest()
 def main():
     cont = True
-    while cont == True:
-        choice = input("What type of attack?\n1. Dictionary w/random caps\n2. Random String Brute Force (up to 6char)\n3. Word w/trail\n4. Common Passwords\n5. Dictionary Attack\n6. Trailing number\n7. Run All (Multi-Threaded)\n8. Quit\n>")
+    while cont:
+        choice = input("What type of attack?\n1. Dictionary w/random caps\n2. Random String Brute Force (up to 6char)\n3. Word w/trail\n4. Common Passwords\n5. Dictionary Attack\n6. Trailing number\n7. Two Words\n8. Run All (Multi-Threaded)\n9. Quit\n>")
         if choice == '1':
             randCapWord(True)
         if choice == '2':
@@ -19,9 +19,11 @@ def main():
             dict(True)
         if choice == '6':
             numTrail(True)
-        if choice =="7":
+        if choice == '7':
+            twoWords(True)
+        if choice =='8':
             all()
-        if choice == '8':
+        if choice == '9':
             cont = False
 
 def randCapWord(verbose):
@@ -43,7 +45,7 @@ def randCapWord(verbose):
                 for hash in hashList:
                     checkHash(encoded, hash, password.strip(), outName)
                 index += 1
-                if((index % 100000 == 0) and verbose == True):
+                if((index % 100000 == 0) and verbose):
                     print(str(index) + " words checked")
 
 
@@ -103,7 +105,7 @@ def trail(verbose):
                 encoded = hashlib.sha256((password.strip() + "".join(trail).strip()).encode()).hexdigest()
                 for hash in hashList:
                     checkHash(encoded, hash, password, outName)
-            if(index % 10000 == 0 and verbose == True):
+            if(index % 10000 == 0 and verbose):
                 print(str(index) + " words completed")
     out.close()
 
@@ -129,13 +131,17 @@ def twoWords(verbose):
     for h in hashes:
         hashList.append(h)
     wordArray = []
+    index = 0
     for word in wordList:
+        index += 1
         wordArray.append(word.strip())
         wordArray.append(word.title().strip())
     for password in itertools.combinations(wordArray, 2):
         encoded = hashlib.sha256("".join(password).strip().encode())
         for hash in hashes:
             checkHash(encoded, hash, "".join(password).strip())
+        if(index%5000 == 0 and verbose):
+            print(str(index) + " words completed")
 
 
 def dict(verbose):
@@ -158,7 +164,7 @@ def dict(verbose):
         encoded = hashlib.sha256(password.strip().encode()).hexdigest()
         for hash in hashList:
             checkHash(encoded, hash, password, outName)
-        if(index % 5000 == 0 and verbose == True):
+        if(index % 5000 == 0 and verbose):
             print(str(index) + " words completed")
 
 
@@ -188,7 +194,7 @@ def numTrail(verbose):
                 encoded = hashlib.sha256((password.strip() + "".join(str(trail))).encode()).hexdigest()
                 for hash in hashList:
                     checkHash(encoded, hash, password, outName)
-        if(index % 5000 == 0 and verbose == True):
+        if(index % 5000 == 0 and verbose):
             print(str(index) + " words completed")
 
 
